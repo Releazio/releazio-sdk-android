@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Update Dialog -->
+    <string name="releazio_update_title">Доступно обновление</string>
+    <string name="releazio_update_message">Доступна новая версия %s. Обновитесь сейчас, чтобы получить последние функции и улучшения.</string>
+    <string name="releazio_update_message_mandatory">Требуется обязательное обновление. Пожалуйста, обновитесь, чтобы продолжить использование приложения.</string>
+    
+    <!-- Buttons -->
+    <string name="releazio_button_update">Обновить</string>
+    <string name="releazio_button_skip">Пропустить</string>
+    <string name="releazio_button_close">Закрыть</string>
+    <string name="releazio_button_info">Информация</string>
+    <string name="releazio_button_later">Позже</string>
+    
+    <!-- Badge -->
+    <string name="releazio_badge_new">Новое</string>
+    <string name="releazio_badge_update">Обновление</string>
+    
+    <!-- Version -->
+    <string name="releazio_version_current">Текущая версия: %s</string>
+    <string name="releazio_version_latest">Последняя версия: %s</string>
+    <string name="releazio_version_available">Доступна версия %s</string>
+    
+    <!-- Changelog -->
+    <string name="releazio_changelog_title">Что нового</string>
+    <string name="releazio_changelog_loading">Загрузка списка изменений...</string>
+    <string name="releazio_changelog_error">Не удалось загрузить список изменений</string>
+    
+    <!-- Update Types -->
+    <string name="releazio_update_type_latest">Последняя</string>
+    <string name="releazio_update_type_silent">Тихая</string>
+    <string name="releazio_update_type_popup">Всплывающее</string>
+    <string name="releazio_update_type_popup_force">Принудительное</string>
+    
+    <!-- Skip Attempts -->
+    <string name="releazio_skip_attempts_remaining">Осталось пропусков: %d</string>
+    <string name="releazio_skip_attempts_none">Пропуски закончились</string>
+    
+    <!-- Errors -->
+    <string name="releazio_error_network">Ошибка сети. Проверьте подключение к интернету.</string>
+    <string name="releazio_error_configuration">SDK не настроен. Пожалуйста, сначала вызовите Releazio.configure().</string>
+    <string name="releazio_error_api">Ошибка API: %s</string>
+    <string name="releazio_error_unknown">Произошла неизвестная ошибка</string>
+    
+    <!-- Status -->
+    <string name="releazio_status_up_to_date">Актуальная версия</string>
+    <string name="releazio_status_update_available">Доступно обновление</string>
+    <string name="releazio_status_checking">Проверка обновлений...</string>
+    <string name="releazio_status_loading">Загрузка...</string>
+</resources>

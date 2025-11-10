@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- 
+    Specify rules to exclude files from backup.
+    https://developer.android.com/guide/topics/data/autobackup
+    -->
+</full-backup-content>
+
+

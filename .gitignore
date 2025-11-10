@@ -1,0 +1,38 @@
+# Built application files
+*.apk
+*.aab
+*.aar
+
+# Generated files
+build/
+bin/
+gen/
+out/
+
+# Gradle
+.gradle/
+local.properties
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Keystore files (uncomment if needed)
+#*.jks
+#*.keystore
+
+# Android Profiling
+*.hprof
+
+# External native build
+.externalNativeBuild
+.cxx/

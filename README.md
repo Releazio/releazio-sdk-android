@@ -1,8 +1,9 @@
 # Releazio Android SDK
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-blue.svg)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg)](https://kotlinlang.org)
 [![Platform](https://img.shields.io/badge/Platform-Android%20API%2024%2B-green.svg)](https://developer.android.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![JitPack](https://jitpack.io/v/Releazio/releazio-sdk-android.svg)](https://jitpack.io/#Releazio/releazio-sdk-android)
 
 **Releazio Android SDK** — современная библиотека для управления обновлениями приложений в Android. SDK предоставляет полный набор инструментов для проверки обновлений, отображения changelog и управления различными типами обновлений.
 
@@ -20,18 +21,31 @@
 ## 📋 Требования
 
 - Android API 24+ (Android 7.0 Nougat)
-- Kotlin 1.9.22+
+- Kotlin 2.0.21+
 - Jetpack Compose (опционально, для UI компонентов)
 
 ## 📦 Установка
 
 ### Gradle
 
-**Добавьте в `build.gradle.kts` (module):**
+**Добавьте JitPack репозиторий в `settings.gradle.kts` (или `settings.gradle`):**
+
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+**Добавьте зависимость в `build.gradle.kts` (module):**
 
 ```kotlin
 dependencies {
-    implementation("com.releazio:android-sdk:1.0.0")
+    implementation("com.github.Releazio:releazio-sdk-android:1.0.0")
 }
 ```
 
@@ -39,20 +53,7 @@ dependencies {
 
 ```gradle
 dependencies {
-    implementation 'com.releazio:android-sdk:1.0.0'
-}
-```
-
-**Добавьте в `settings.gradle.kts`:**
-
-```kotlin
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        // Добавьте репозиторий Releazio
-        maven { url = uri("https://maven.pkg.github.com/releazio/releazio-android-sdk") }
-    }
+    implementation 'com.github.Releazio:releazio-sdk-android:1.0.0'
 }
 ```
 
@@ -286,14 +287,9 @@ SDK поддерживает два языка:
 
 ## 📖 Документация
 
-Подробная документация доступна в следующих файлах:
-
-- **[API Documentation](./Documentation/API.md)** — Полная справка по API
-- **[Integration Guide](./Documentation/Integration.md)** — Руководство по интеграции
+Полный пример интеграции доступен в папке [Example](./example/).
 
 ## 💡 Примеры использования
-
-Полный пример интеграции доступен в папке [Example](./example/).
 
 ### Пример полной интеграции (Jetpack Compose)
 
@@ -386,7 +382,7 @@ try {
 ## 🤝 Поддержка
 
 - 📧 Email: support@releazio.com
-- 🐛 Issues: [GitHub Issues](https://github.com/releazio/releazio-android-sdk/issues)
+- 🐛 Issues: [GitHub Issues](https://github.com/Releazio/releazio-sdk-android/issues)
 - 📖 Документация: [Releazio Docs](https://releazio.com/docs)
 
 ## 📄 Лицензия
@@ -396,3 +392,5 @@ Releazio Android SDK доступен под лицензией MIT. Смотр�
 ---
 
 **Сделано с ❤️ командой Releazio**
+
+

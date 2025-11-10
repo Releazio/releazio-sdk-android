@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Internet permission for API calls -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Network state permission for checking connectivity -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        tools:targetApi="31">
+        
+        <!-- Releazio SDK doesn't need any specific components -->
+        
+    </application>
+
+</manifest>

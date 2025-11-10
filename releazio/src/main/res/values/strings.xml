@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Update Dialog -->
+    <string name="releazio_update_title">Update Available</string>
+    <string name="releazio_update_message">A new version %s is available. Update now to get the latest features and improvements.</string>
+    <string name="releazio_update_message_mandatory">A mandatory update is required. Please update to continue using the app.</string>
+    
+    <!-- Buttons -->
+    <string name="releazio_button_update">Update</string>
+    <string name="releazio_button_skip">Skip</string>
+    <string name="releazio_button_close">Close</string>
+    <string name="releazio_button_info">Info</string>
+    <string name="releazio_button_later">Later</string>
+    
+    <!-- Badge -->
+    <string name="releazio_badge_new">New</string>
+    <string name="releazio_badge_update">Update</string>
+    
+    <!-- Version -->
+    <string name="releazio_version_current">Current version: %s</string>
+    <string name="releazio_version_latest">Latest version: %s</string>
+    <string name="releazio_version_available">Version %s available</string>
+    
+    <!-- Changelog -->
+    <string name="releazio_changelog_title">What\'s New</string>
+    <string name="releazio_changelog_loading">Loading changelog...</string>
+    <string name="releazio_changelog_error">Failed to load changelog</string>
+    
+    <!-- Update Types -->
+    <string name="releazio_update_type_latest">Latest</string>
+    <string name="releazio_update_type_silent">Silent</string>
+    <string name="releazio_update_type_popup">Popup</string>
+    <string name="releazio_update_type_popup_force">Force Update</string>
+    
+    <!-- Skip Attempts -->
+    <string name="releazio_skip_attempts_remaining">Skip attempts remaining: %d</string>
+    <string name="releazio_skip_attempts_none">No skip attempts remaining</string>
+    
+    <!-- Errors -->
+    <string name="releazio_error_network">Network error. Please check your connection.</string>
+    <string name="releazio_error_configuration">SDK not configured. Please call Releazio.configure() first.</string>
+    <string name="releazio_error_api">API error: %s</string>
+    <string name="releazio_error_unknown">Unknown error occurred</string>
+    
+    <!-- Status -->
+    <string name="releazio_status_up_to_date">Up to date</string>
+    <string name="releazio_status_update_available">Update available</string>
+    <string name="releazio_status_checking">Checking for updates...</string>
+    <string name="releazio_status_loading">Loading...</string>
+</resources>
