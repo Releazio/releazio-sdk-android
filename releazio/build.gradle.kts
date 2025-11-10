@@ -5,6 +5,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+group = "com.github.Releazio"
+version = "1.0.0"
+
 android {
     namespace = "com.releazio.sdk"
     compileSdk = 34
