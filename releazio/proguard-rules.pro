@@ -86,3 +86,10 @@
 
 # Keep debug information for debugging
 -keepattributes SourceFile,LineNumberTable
+
+# Keep Java 9+ string concatenation factory (required for Kotlin string interpolation)
+-keep class java.lang.invoke.StringConcatFactory { *; }
+-dontwarn java.lang.invoke.StringConcatFactory
+
+# Keep Kotlin metadata
+-keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
