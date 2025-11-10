@@ -45,7 +45,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.Releazio:releazio-sdk-android:1.0.1")
+    implementation("com.github.Releazio:releazio-sdk-android:1.0.3")
 }
 ```
 
@@ -53,7 +53,7 @@ dependencies {
 
 ```gradle
 dependencies {
-    implementation 'com.github.Releazio:releazio-sdk-android:1.0.1'
+    implementation 'com.github.Releazio:releazio-sdk-android:1.0.3'
 }
 ```
 
