@@ -47,12 +47,12 @@ data class UpdateState(
     /**
      * Current app version code (for comparison)
      */
-    val currentVersion: String,
+    val currentVersion: Int,
 
     /**
      * Latest available version code from API (for comparison)
      */
-    val latestVersion: String,
+    val latestVersion: Int,
 
     /**
      * Current app version name (for display, e.g., "1.2.3")

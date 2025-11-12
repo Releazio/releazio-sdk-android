@@ -3,7 +3,6 @@ package com.releazio.sdk.services
 import com.releazio.sdk.core.ReleazioConfiguration
 import com.releazio.sdk.models.ChannelData
 import com.releazio.sdk.models.UpdateState
-import com.releazio.sdk.utils.VersionComparator
 
 /**
  * Manager for determining update state and UI visibility
@@ -30,21 +29,22 @@ class UpdateStateManager(
      * Calculate update state from channel data
      * @param channelData Channel data from API
      * @param currentVersionCode Current app version code from context
+     * @param currentVersionName Current app version name from context
      * @return UpdateState with all visibility flags
      */
     fun calculateUpdateState(
         channelData: ChannelData,
-        currentVersionCode: String
+        currentVersionCode: Long,
+        currentVersionName: String
     ): UpdateState {
-        val isUpdateAvailable = VersionComparator.isNewerVersion(
-            channelData.appVersionCode,
-            currentVersionCode
-        )
+        // Parse version codes to Long for comparison
+        val latestVersionCode = channelData.appVersionCode.toLongOrNull() ?: 0L
+        val isUpdateAvailable = latestVersionCode > currentVersionCode
         
         if (configuration?.debugLoggingEnabled == true) {
             android.util.Log.d("Releazio", "🔍 Version comparison:")
             android.util.Log.d("Releazio", "   Current: $currentVersionCode")
-            android.util.Log.d("Releazio", "   Latest: ${channelData.appVersionCode}")
+            android.util.Log.d("Releazio", "   Latest: $latestVersionCode")
             android.util.Log.d("Releazio", "   Update available: $isUpdateAvailable")
         }
         
@@ -65,8 +65,10 @@ class UpdateStateManager(
         
         val remainingSkipAttempts = getRemainingSkipAttempts(channelData)
         val badgeURL = getBadgeURL(channelData)
-        val currentVersionName = currentVersionCode
-        val latestVersionName = channelData.appVersionName
+        
+        // Convert to Int for UpdateState (versionCode is Int in Android)
+        val latestVersionCodeInt = latestVersionCode.toInt()
+        val currentVersionCodeInt = currentVersionCode.toInt()
         
         return UpdateState(
             updateType = channelData.updateType,
@@ -77,10 +79,10 @@ class UpdateStateManager(
             channelData = channelData,
             badgeURL = badgeURL,
             updateURL = channelData.appUrl ?: channelData.appDeeplink,
-            currentVersion = currentVersionCode,
-            latestVersion = channelData.appVersionCode,
+            currentVersion = currentVersionCodeInt,
+            latestVersion = latestVersionCodeInt,
             currentVersionName = currentVersionName,
-            latestVersionName = latestVersionName,
+            latestVersionName = channelData.appVersionName,
             isUpdateAvailable = isUpdateAvailable
         )
     }
@@ -164,6 +166,7 @@ class UpdateStateManager(
     
     private fun getRemainingSkipAttempts(channelData: ChannelData): Int {
         if (channelData.updateType != 3) return 0
+        // Use appVersionCode as string for storage (storage works with strings)
         return actualStorage?.getRemainingSkipAttempts(channelData.appVersionCode) ?: 0
     }
     

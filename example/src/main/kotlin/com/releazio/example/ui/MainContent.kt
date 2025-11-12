@@ -22,6 +22,7 @@ import com.releazio.example.ui.components.BottomVersionView
 import com.releazio.example.ui.components.ChangelogDialog
 import com.releazio.sdk.Releazio
 import com.releazio.sdk.core.ReleazioError
+import com.releazio.sdk.core.UpdateCheckConfig
 import com.releazio.sdk.models.UpdateState
 import kotlinx.coroutines.launch
 
@@ -68,6 +69,11 @@ fun MainContent(
                             isLoading = true
                             errorMessage = null
                             try {
+                                // Example: check updates with override config (locale and channel)
+                                // val overrideConfig = UpdateCheckConfig(locale = "ru", channel = "playstore")
+                                // val state = Releazio.checkUpdates(overrideConfig)
+                                
+                                // Default: check updates without override
                                 val state = Releazio.checkUpdates()
                                 updateState = state
                                 android.util.Log.d("Example", "✅ Update check completed")

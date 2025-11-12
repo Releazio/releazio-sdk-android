@@ -11,7 +11,7 @@ import kotlinx.coroutines.sync.withLock
  * Protocol for network manager
  */
 interface NetworkManagerProtocol {
-    suspend fun getConfig(): ConfigResponse
+    suspend fun getConfig(locale: String? = null, channel: String? = null): ConfigResponse
     suspend fun getReleases(): List<Release>
     suspend fun getLatestRelease(): Release?
     suspend fun getChangelog(): List<ChangelogEntry>
@@ -42,11 +42,13 @@ class NetworkManager(
 
     /**
      * Get application configuration
+     * @param locale Optional locale override
+     * @param channel Optional channel override
      * @return Configuration response
      * @throws ReleazioError
      */
-    override suspend fun getConfig(): ConfigResponse {
-        val endpoint = APIEndpoints.getConfig()
+    override suspend fun getConfig(locale: String?, channel: String?): ConfigResponse {
+        val endpoint = APIEndpoints.getConfig(locale = locale, channel = channel)
 
         return try {
             val request = APIRequestBuilder.get(

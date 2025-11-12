@@ -7,10 +7,21 @@ import android.util.Log
 import com.releazio.sdk.models.UpdateState
 import com.releazio.sdk.services.ReleaseService
 import com.releazio.sdk.services.UpdateStateManager
+import com.releazio.sdk.utils.AppStoreHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+
+/**
+ * Configuration override for update check
+ * @param locale Optional locale override (e.g., "ru", "en")
+ * @param channel Optional channel override (e.g., "playstore", "galaxystore")
+ */
+data class UpdateCheckConfig(
+    val locale: String? = null,
+    val channel: String? = null
+)
 
 /**
  * Main entry point for Releazio Android SDK
@@ -50,29 +61,42 @@ object Releazio {
 
     /**
      * Check for available updates
+     * @param overrideConfig Optional configuration override (locale, channel)
      * @return UpdateState with all information about whether to show badges, popups, buttons
      * @throws ReleazioError if configuration is missing or network request fails
      */
-    suspend fun checkUpdates(): UpdateState {
+    suspend fun checkUpdates(overrideConfig: UpdateCheckConfig? = null): UpdateState {
         val config = configuration ?: throw ReleazioError.ConfigurationMissing
 
         try {
-            val configResponse = releaseService.getConfig()
-            val channelData = configResponse.data.firstOrNull()
-                ?: throw ReleazioError.ApiError("NO_CHANNEL_DATA", "No channel data found in config")
+            val configResponse = releaseService.getConfig(
+                locale = overrideConfig?.locale,
+                channel = overrideConfig?.channel
+            )
+            
+            // Select channel data based on override or use first one
+            val channelData = if (overrideConfig?.channel != null) {
+                configResponse.data.firstOrNull { it.channel == overrideConfig.channel }
+                    ?: throw ReleazioError.ApiError("CHANNEL_NOT_FOUND", "Channel '${overrideConfig.channel}' not found in config")
+            } else {
+                configResponse.data.firstOrNull()
+                    ?: throw ReleazioError.ApiError("NO_CHANNEL_DATA", "No channel data found in config")
+            }
 
             val context = getContext()
-            val currentVersionCode = getCurrentVersionCode(context)
+            val (currentVersionCode, currentVersionName) = getCurrentVersionInfo(context)
 
             if (config.debugLoggingEnabled) {
                 Log.d("Releazio", "📱 Current version code: $currentVersionCode")
+                Log.d("Releazio", "📱 Current version name: $currentVersionName")
                 Log.d("Releazio", "📱 Latest version code: ${channelData.appVersionCode}")
                 Log.d("Releazio", "📱 Version name: ${channelData.appVersionName}")
             }
 
             val updateState = updateStateManager.calculateUpdateState(
                 channelData = channelData,
-                currentVersionCode = currentVersionCode
+                currentVersionCode = currentVersionCode,
+                currentVersionName = currentVersionName
             )
 
             scope.launch {
@@ -81,8 +105,8 @@ object Releazio {
                         "update_checked",
                         mapOf(
                             "has_update" to updateState.isUpdateAvailable.toString(),
-                            "current_version" to updateState.currentVersion,
-                            "latest_version" to updateState.latestVersion
+                            "current_version" to updateState.currentVersion.toString(),
+                            "latest_version" to updateState.latestVersion.toString()
                         )
                     )
                 } catch (e: Exception) {
@@ -128,6 +152,7 @@ object Releazio {
     /**
      * Open App Store for update
      * Opens the update URL from UpdateState (app_url or app_deeplink)
+     * Tries to open with specific app store if detected from URL
      * @param updateState Update state containing update URL
      * @return True if URL was opened successfully, false otherwise
      */
@@ -139,11 +164,34 @@ object Releazio {
             return false
         }
 
-        return openURL(urlString).also { success ->
-            if (configuration?.debugLoggingEnabled == true) {
-                Log.d("Releazio", if (success) "✅ Opened App Store URL: $urlString" else "❌ Failed to open App Store URL: $urlString")
+        val context = getContext()
+        
+        // Try to detect store from URL
+        val detectedStore = AppStoreHelper.detectStoreFromURL(urlString)
+        
+        // Try to open with detected store, fallback to generic openURL
+        val success = if (detectedStore != null) {
+            AppStoreHelper.openURLWithStore(context, urlString, detectedStore)
+        } else {
+            // If no store detected, try with primary installed store
+            val primaryStore = AppStoreHelper.detectPrimaryStore(context)
+            if (primaryStore != null) {
+                AppStoreHelper.openURLWithStore(context, urlString, primaryStore)
+            } else {
+                // Final fallback: generic URL opening
+                openURL(urlString)
             }
         }
+
+        if (configuration?.debugLoggingEnabled == true) {
+            Log.d("Releazio", if (success) {
+                "✅ Opened App Store URL: $urlString${detectedStore?.let { " (store: ${it.name})" } ?: ""}"
+            } else {
+                "❌ Failed to open App Store URL: $urlString"
+            })
+        }
+
+        return success
     }
 
     /**
@@ -207,12 +255,14 @@ object Releazio {
         return context ?: throw ReleazioError.MissingUIContext
     }
 
-    private fun getCurrentVersionCode(context: Context): String {
+    private fun getCurrentVersionInfo(context: Context): Pair<Long, String> {
         return try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.longVersionCode.toString()
+            val versionCode = packageInfo.longVersionCode
+            val versionName = packageInfo.versionName ?: "1.0.0"
+            Pair(versionCode, versionName)
         } catch (e: Exception) {
-            "0"
+            Pair(0L, "1.0.0")
         }
     }
 

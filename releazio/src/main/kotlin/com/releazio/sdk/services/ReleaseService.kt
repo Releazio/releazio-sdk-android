@@ -207,12 +207,25 @@ class ReleaseService : ReleaseServiceProtocol {
     
     /**
      * Get configuration from API
+     * @param locale Optional locale override
+     * @param channel Optional channel override
      * @return Configuration response
      * @throws ReleazioError
      */
     override suspend fun getConfig(): ConfigResponse {
+        return getConfig(locale = null, channel = null)
+    }
+
+    /**
+     * Get configuration from API with override parameters
+     * @param locale Optional locale override
+     * @param channel Optional channel override
+     * @return Configuration response
+     * @throws ReleazioError
+     */
+    suspend fun getConfig(locale: String? = null, channel: String? = null): ConfigResponse {
         val networkManager = this.networkManager ?: throw ReleazioError.ConfigurationMissing
-        return networkManager.getConfig()
+        return networkManager.getConfig(locale = locale, channel = channel)
     }
 
     /**

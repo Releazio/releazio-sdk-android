@@ -14,9 +14,25 @@ object APIEndpoints {
 
     /**
      * Get application configuration and releases
-     * @return Endpoint URL
+     * @param locale Optional locale override
+     * @param channel Optional channel override
+     * @return Endpoint URL with query parameters if provided
      */
-    fun getConfig(): URL = baseURL
+    fun getConfig(locale: String? = null, channel: String? = null): URL {
+        if (locale == null && channel == null) {
+            return baseURL
+        }
+        
+        val queryParams = mutableListOf<String>()
+        locale?.let { queryParams.add("locale=$it") }
+        channel?.let { queryParams.add("channel=$it") }
+        
+        return if (queryParams.isNotEmpty()) {
+            URL("${baseURL}?${queryParams.joinToString("&")}")
+        } else {
+            baseURL
+        }
+    }
 }
 
 /**
