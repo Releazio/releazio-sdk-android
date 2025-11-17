@@ -247,7 +247,7 @@ object Releazio {
     private fun setupServices() {
         val config = configuration ?: return
         val ctx = context ?: return
-        releaseService.configure(config)
+        releaseService.configure(config, ctx)
         updateStateManager.configure(config, ctx)
     }
 

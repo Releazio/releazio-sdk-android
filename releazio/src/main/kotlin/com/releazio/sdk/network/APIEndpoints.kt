@@ -1,6 +1,7 @@
 package com.releazio.sdk.network
 
 import java.net.URL
+import java.net.URLEncoder
 
 /**
  * API endpoints for Releazio service
@@ -14,24 +15,47 @@ object APIEndpoints {
 
     /**
      * Get application configuration and releases
-     * @param locale Optional locale override
-     * @param channel Optional channel override
-     * @return Endpoint URL with query parameters if provided
+     * @param channel Channel identifier (e.g., "playstore", "galaxystore")
+     * @param appId Application package name
+     * @param appVersionCode Application version code
+     * @param appVersionName Application version name
+     * @param phoneLocaleCountry Phone locale country code
+     * @param phoneLocaleLanguage Phone locale language code
+     * @param osVersionCode OS API level
+     * @param deviceManufacturer Device manufacturer
+     * @param deviceBrand Device brand
+     * @param deviceModel Device model
+     * @return Endpoint URL with query parameters
      */
-    fun getConfig(locale: String? = null, channel: String? = null): URL {
-        if (locale == null && channel == null) {
-            return baseURL
-        }
-        
+    fun getConfig(
+        channel: String,
+        appId: String?,
+        appVersionCode: String?,
+        appVersionName: String?,
+        phoneLocaleCountry: String?,
+        phoneLocaleLanguage: String?,
+        osVersionCode: Int?,
+        deviceManufacturer: String,
+        deviceBrand: String,
+        deviceModel: String?
+    ): URL {
         val queryParams = mutableListOf<String>()
-        locale?.let { queryParams.add("locale=$it") }
-        channel?.let { queryParams.add("channel=$it") }
         
-        return if (queryParams.isNotEmpty()) {
-            URL("${baseURL}?${queryParams.joinToString("&")}")
-        } else {
-            baseURL
-        }
+        // Required parameter
+        queryParams.add("channel=${URLEncoder.encode(channel, "UTF-8")}")
+        
+        // Optional parameters
+        appId?.let { queryParams.add("app_id=${URLEncoder.encode(it, "UTF-8")}") }
+        appVersionCode?.let { queryParams.add("app_version_code=${URLEncoder.encode(it, "UTF-8")}") }
+        appVersionName?.let { queryParams.add("app_version_name=${URLEncoder.encode(it, "UTF-8")}") }
+        phoneLocaleCountry?.let { queryParams.add("phone_locale_country=${URLEncoder.encode(it, "UTF-8")}") }
+        phoneLocaleLanguage?.let { queryParams.add("phone_locale_language=${URLEncoder.encode(it, "UTF-8")}") }
+        osVersionCode?.let { queryParams.add("os_version_code=$it") }
+        queryParams.add("device_manufacturer=${URLEncoder.encode(deviceManufacturer, "UTF-8")}")
+        queryParams.add("device_brand=${URLEncoder.encode(deviceBrand, "UTF-8")}")
+        deviceModel?.let { queryParams.add("device_model=${URLEncoder.encode(it, "UTF-8")}") }
+        
+        return URL("${baseURL}?${queryParams.joinToString("&")}")
     }
 }
 

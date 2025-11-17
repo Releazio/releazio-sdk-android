@@ -7,6 +7,25 @@
 
 ## [Unreleased]
 
+## [1.0.7] - 2025-01-XX
+
+### Changed
+- **BREAKING**: Переход на query параметры для `getConfig()` API
+- Все параметры теперь передаются через query параметры URL вместо HTTP заголовков
+- Автоматический сбор данных устройства и приложения при каждом запросе `getConfig()`
+
+### Technical Details
+- Параметры передаются в URL: `channel`, `app_id`, `app_version_code`, `app_version_name`, `phone_locale_country`, `phone_locale_language`, `os_version_code`, `device_manufacturer`, `device_brand`, `device_model`
+- Удалены HTTP заголовки: `User-Agent`, `X-SDK-Version`, `X-Platform`
+- Оставлены только необходимые заголовки: `Accept: application/json`, `Authorization: {api_key}`
+- Автоматическое определение канала распространения через `AppStoreHelper.detectPrimaryStore()`
+
+### Migration Guide
+- Изменения внутренние, публичный API не изменился
+- SDK автоматически собирает все необходимые данные устройства и приложения
+
+## [Unreleased]
+
 ### Added
 - Первоначальный релиз Android SDK
 - Поддержка 4 типов обновлений (latest, silent, popup, popup force)

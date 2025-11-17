@@ -1,11 +1,16 @@
 package com.releazio.sdk.network
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import com.releazio.sdk.core.ReleazioConfiguration
 import com.releazio.sdk.core.ReleazioError
 import com.releazio.sdk.core.asReleazioError
 import com.releazio.sdk.models.*
+import com.releazio.sdk.utils.AppStoreHelper
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.Locale
 
 /**
  * Protocol for network manager
@@ -26,6 +31,7 @@ interface NetworkManagerProtocol {
  */
 class NetworkManager(
     private val configuration: ReleazioConfiguration,
+    private val context: Context,
     private val networkClient: NetworkClientProtocol? = null
 ) : NetworkManagerProtocol {
 
@@ -48,7 +54,51 @@ class NetworkManager(
      * @throws ReleazioError
      */
     override suspend fun getConfig(locale: String?, channel: String?): ConfigResponse {
-        val endpoint = APIEndpoints.getConfig(locale = locale, channel = channel)
+        // Collect device and app information
+        val packageManager = context.packageManager
+        val packageInfo = try {
+            packageManager.getPackageInfo(context.packageName, 0)
+        } catch (e: PackageManager.NameNotFoundException) {
+            throw ReleazioError.ApiError("PACKAGE_NOT_FOUND", "Package not found: ${context.packageName}")
+        }
+
+        // Determine channel
+        val detectedChannel = channel ?: run {
+            val primaryStore = AppStoreHelper.detectPrimaryStore(context)
+            AppStoreHelper.getChannelFromStore(primaryStore)
+        }
+
+        // Collect app information
+        val appId = context.packageName
+        val appVersionCode = packageInfo.longVersionCode.toString()
+        val appVersionName = packageInfo.versionName ?: "1.0.0"
+
+        // Collect locale information (use override if provided)
+        val defaultLocale = Locale.getDefault()
+        val phoneLocaleCountry = defaultLocale.country
+        val phoneLocaleLanguage = defaultLocale.language
+
+        // Collect OS information
+        val osVersionCode = Build.VERSION.SDK_INT
+
+        // Collect device information
+        val deviceManufacturer = Build.MANUFACTURER
+        val deviceBrand = Build.BRAND
+        val deviceModel = Build.MODEL
+
+        // Build endpoint URL with all query parameters
+        val endpoint = APIEndpoints.getConfig(
+            channel = detectedChannel,
+            appId = appId,
+            appVersionCode = appVersionCode,
+            appVersionName = appVersionName,
+            phoneLocaleCountry = phoneLocaleCountry,
+            phoneLocaleLanguage = phoneLocaleLanguage,
+            osVersionCode = osVersionCode,
+            deviceManufacturer = deviceManufacturer,
+            deviceBrand = deviceBrand,
+            deviceModel = deviceModel
+        )
 
         return try {
             val request = APIRequestBuilder.get(
@@ -236,10 +286,7 @@ class NetworkManager(
      */
     private fun getDefaultHeaders(): Map<String, String> {
         return mapOf(
-            "Accept" to "application/json",
-            "User-Agent" to "Releazio-Android-SDK/1.0.0",
-            "X-SDK-Version" to "1.0.0",
-            "X-Platform" to "Android"
+            "Accept" to "application/json"
         )
     }
 

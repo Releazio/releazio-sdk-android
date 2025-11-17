@@ -116,5 +116,25 @@ object AppStoreHelper {
             else -> null
         }
     }
+
+    /**
+     * Convert AppStore enum to channel string identifier
+     * @param store App store enum
+     * @return Channel string identifier (e.g., "googleplay", "galaxystore")
+     */
+    fun getChannelFromStore(store: AppStore?): String {
+        return when (store) {
+            AppStore.PLAY_STORE -> "googleplay"
+            AppStore.GALAXY_STORE -> "galaxystore"
+            AppStore.APP_GALLERY -> "appgallery"
+            AppStore.RUSTORE -> "rustore"
+            AppStore.NASHSTORE -> "nashstore"
+            AppStore.RUMARKET -> "rumarket"
+            AppStore.GETAPPS -> "getapps"
+            null -> "googleplay" // Default fallback
+        }
+    }
 }
+
+
 

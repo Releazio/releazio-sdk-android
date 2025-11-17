@@ -1,5 +1,6 @@
 package com.releazio.sdk.services
 
+import android.content.Context
 import com.releazio.sdk.core.ReleazioConfiguration
 import com.releazio.sdk.core.ReleazioError
 import com.releazio.sdk.core.asReleazioError
@@ -36,12 +37,13 @@ class ReleaseService : ReleaseServiceProtocol {
     /**
      * Configure service with dependencies
      * @param configuration Releazio configuration
+     * @param context Android context (required for device information collection)
      */
-    fun configure(configuration: ReleazioConfiguration) {
+    fun configure(configuration: ReleazioConfiguration, context: Context) {
         this.configuration = configuration
 
         if (networkManager == null) {
-            this.networkManager = NetworkManager(configuration)
+            this.networkManager = NetworkManager(configuration, context)
         }
 
         if (cacheService == null) {

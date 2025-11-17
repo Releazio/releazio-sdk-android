@@ -67,9 +67,6 @@ class NetworkClient(
         // Default request configuration
         install(DefaultRequest) {
             header("Accept", "application/json")
-            header("User-Agent", "Releazio-Android-SDK/1.0.0")
-            header("X-SDK-Version", "1.0.0")
-            header("X-Platform", "Android")
             header("Authorization", configuration.apiKey)
         }
 
