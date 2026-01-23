@@ -20,7 +20,7 @@ class ReleazioExampleApp : Application() {
      * Configure Releazio SDK with API key and settings
      */
     private fun configureReleazioSDK() {
-        val apiKey = "ngqOJgnrvwFqSvVyqUOhxCvnRHisKkoiuI/PycYjiGc="
+        val apiKey = "Your API key here"
 
         // Create configuration
         val configuration = ReleazioConfiguration(

@@ -24,6 +24,7 @@ interface ReleaseServiceProtocol {
     suspend fun getConfig(): ConfigResponse
     suspend fun clearCache()
     suspend fun trackEvent(eventName: String, properties: Map<String, Any> = emptyMap())
+    suspend fun init()
 }
 
 /**
@@ -275,6 +276,22 @@ class ReleaseService : ReleaseServiceProtocol {
         } catch (e: Exception) {
             if (configuration?.debugLoggingEnabled == true) {
                 android.util.Log.w("Releazio", "Failed to track event: $eventName", e)
+            }
+        }
+    }
+
+    /**
+     * Initialize device - send device information to server for statistics
+     * Errors are silently handled to not interrupt SDK initialization
+     */
+    override suspend fun init() {
+        val networkManager = this.networkManager ?: return
+        try {
+            networkManager.init()
+        } catch (e: Exception) {
+            // Log error but don't throw to not interrupt SDK initialization
+            if (configuration?.debugLoggingEnabled == true) {
+                android.util.Log.w("Releazio", "Failed to initialize device: ${e.message}", e)
             }
         }
     }

@@ -7,6 +7,23 @@
 
 ## [Unreleased]
 
+## [1.0.9] - 2025-01-XX
+
+### Added
+- Автоматический вызов метода `init()` при `Releazio.configure()`
+- Отправка данных устройства на сервер для статистики API запросов
+- Поддержка POST запросов в NetworkManager
+- Модель `InitRequest` для инициализации устройства
+
+### Changed
+- Метод `configure()` теперь автоматически отправляет информацию об устройстве при инициализации SDK
+- Ошибки при `init()` не прерывают процесс инициализации SDK
+
+### Technical Details
+- Метод `init()` отправляет POST запрос на `/init` endpoint с полной информацией об устройстве
+- Собираются данные: channel, app_id, app_version_code, app_version_name, os_type, region, market_packages, locale, os_version_code, device_manufacturer, device_brand, device_model, sdk_version, os_api_level, timezone, device_id, screen_width, screen_height, screen_scale, is_emulator
+- Запрос выполняется асинхронно в фоне и не блокирует инициализацию SDK
+
 ## [1.0.8] - 2025-01-XX
 
 ### Changed

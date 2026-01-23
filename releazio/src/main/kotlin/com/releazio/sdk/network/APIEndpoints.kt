@@ -57,6 +57,14 @@ object APIEndpoints {
         
         return URL("${baseURL}?${queryParams.joinToString("&")}")
     }
+
+    /**
+     * Device initialization endpoint
+     * @return Endpoint URL for device init
+     */
+    fun init(): URL {
+        return URL("${baseURL}/init")
+    }
 }
 
 /**

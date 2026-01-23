@@ -53,6 +53,18 @@ object Releazio {
             }
         }
 
+        // Initialize device - send device information to server for statistics
+        scope.launch {
+            try {
+                releaseService.init()
+            } catch (e: Exception) {
+                // Log error but don't interrupt SDK initialization
+                if (configuration.debugLoggingEnabled) {
+                    Log.w("Releazio", "Failed to call init: ${e.message}", e)
+                }
+            }
+        }
+
         if (configuration.debugLoggingEnabled) {
             Log.d("Releazio", "✅ Releazio SDK configured successfully")
             Log.d("Releazio", "🔑 API Key: ${configuration.apiKey.take(10)}...")

@@ -3,6 +3,8 @@ package com.releazio.sdk.network
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
+import android.util.DisplayMetrics
 import com.releazio.sdk.core.ReleazioConfiguration
 import com.releazio.sdk.core.ReleazioError
 import com.releazio.sdk.core.asReleazioError
@@ -10,7 +12,10 @@ import com.releazio.sdk.models.*
 import com.releazio.sdk.utils.AppStoreHelper
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Protocol for network manager
@@ -24,6 +29,7 @@ interface NetworkManagerProtocol {
     suspend fun checkForUpdates(currentVersion: String): UpdateCheckResponse
     suspend fun trackEvent(event: AnalyticsEvent)
     suspend fun validateAPIKey(): Boolean
+    suspend fun init()
 }
 
 /**
@@ -278,6 +284,153 @@ class NetworkManager(
         } catch (e: Exception) {
             false
         }
+    }
+
+    /**
+     * Initialize device - send device information to server for statistics
+     * This method collects all device data and sends POST request to /init endpoint
+     * Errors are silently handled to not interrupt SDK initialization
+     */
+    override suspend fun init() {
+        try {
+            // Collect device and app information
+            val packageManager = context.packageManager
+            val packageInfo = try {
+                packageManager.getPackageInfo(context.packageName, 0)
+            } catch (e: PackageManager.NameNotFoundException) {
+                if (configuration.debugLoggingEnabled) {
+                    android.util.Log.w("Releazio", "Failed to get package info for init: ${e.message}")
+                }
+                return
+            }
+
+            // Determine channel
+            val primaryStore = AppStoreHelper.detectPrimaryStore(context)
+            val channel = AppStoreHelper.getChannelFromStore(primaryStore) ?: "apk"
+
+            // Collect app information
+            val appId = context.packageName
+            val appVersionCode = packageInfo.longVersionCode.toString()
+            val appVersionName = packageInfo.versionName ?: "1.0.0"
+
+            // Collect locale information
+            val defaultLocale = Locale.getDefault()
+            val region = defaultLocale.country
+            val locale = defaultLocale.language
+
+            // Collect OS information
+            val osApiLevel = Build.VERSION.SDK_INT.toString()
+            val osVersionCode = Build.VERSION.RELEASE
+
+            // Collect device information
+            val deviceManufacturer = Build.MANUFACTURER
+            val deviceBrand = Build.BRAND
+            val deviceModel = Build.MODEL
+
+            // Get device ID
+            val deviceId = try {
+                Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            } catch (e: Exception) {
+                if (configuration.debugLoggingEnabled) {
+                    android.util.Log.w("Releazio", "Failed to get device ID: ${e.message}")
+                }
+                null
+            }
+
+            // Get screen metrics
+            val displayMetrics: DisplayMetrics = context.resources.displayMetrics
+            val screenWidth = displayMetrics.widthPixels
+            val screenHeight = displayMetrics.heightPixels
+            val screenScale = displayMetrics.densityDpi
+
+            // Get timezone
+            val timezone = TimeZone.getDefault().id
+
+            // Check if emulator
+            val isEmulator = isEmulator()
+
+            // Get market packages
+            val installedStores = AppStoreHelper.detectInstalledStores(context)
+            val marketPackages = installedStores.joinToString(", ") { it.packageName }
+
+            // SDK version
+            val sdkVersion = "1.0.9"
+
+            // Create init request
+            val initRequest = InitRequest(
+                channel = channel,
+                appId = appId,
+                appVersionCode = appVersionCode,
+                appVersionName = appVersionName,
+                osType = "android",
+                region = region,
+                marketPackages = marketPackages.ifEmpty { null },
+                locale = locale,
+                osVersionCode = osVersionCode,
+                deviceManufacturer = deviceManufacturer,
+                deviceBrand = deviceBrand,
+                deviceModel = deviceModel,
+                sdkVersion = sdkVersion,
+                osApiLevel = osApiLevel,
+                timezone = timezone,
+                deviceId = deviceId,
+                screenWidth = screenWidth,
+                screenHeight = screenHeight,
+                screenScale = screenScale,
+                isEmulator = isEmulator
+            )
+
+            // Serialize to JSON
+            val json = Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                encodeDefaults = true
+            }
+            val jsonBody = json.encodeToString(initRequest).toByteArray(Charsets.UTF_8)
+
+            // Build endpoint URL
+            val endpoint = APIEndpoints.init()
+
+            // Create POST request
+            val request = APIRequestBuilder.post(
+                url = endpoint,
+                headers = getDefaultHeaders(),
+                body = jsonBody,
+                timeout = configuration.networkTimeout
+            )
+
+            // Send request (fire-and-forget, don't wait for response)
+            try {
+                client.requestRaw(request)
+                if (configuration.debugLoggingEnabled) {
+                    android.util.Log.d("Releazio", "✅ Device init completed successfully")
+                }
+            } catch (e: Exception) {
+                if (configuration.debugLoggingEnabled) {
+                    android.util.Log.w("Releazio", "Failed to send init request: ${e.message}", e)
+                }
+            }
+        } catch (e: Exception) {
+            // Silently handle all errors to not interrupt SDK initialization
+            if (configuration.debugLoggingEnabled) {
+                android.util.Log.w("Releazio", "Failed to initialize device: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Check if device is an emulator
+     * @return True if device is an emulator
+     */
+    private fun isEmulator(): Boolean {
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.contains("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || "google_sdk" == Build.PRODUCT
     }
 
     /**

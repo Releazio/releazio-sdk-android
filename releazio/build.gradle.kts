@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.github.Releazio"
-version = "1.0.8"
+version = "1.0.9"
 
 android {
     namespace = "com.releazio.sdk"
